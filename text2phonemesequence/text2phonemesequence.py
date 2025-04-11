@@ -311,6 +311,9 @@ class Text2PhonemeSequence:
             # normalize apostrophes for english words
             list_words[i] = list_words[i].replace("’", "'")
 
+            if len(list_words[i]) == 0:
+                continue
+            
             phoneme = self.t2p(list_words[i], language)
             list_phones.append(phoneme)
 
