@@ -299,9 +299,7 @@ class Text2PhonemeSequence:
         sentence="",
         seperate_syllabel_token="_",
         save_missing_phonemes=False,
-        language: Optional[
-            str
-        ] = None,  # Thêm language để tùy chọn cách đọc từ viết tắt
+        language: Optional[str] = None, # Thêm language để tùy chọn cách đọc từ viết tắt
     ):
         list_words = sentence.lower().split(" ")
         list_phones = []
