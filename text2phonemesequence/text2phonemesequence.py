@@ -207,12 +207,14 @@ class Text2PhonemeSequence:
         Load G2P dictionary from file.
         """
         if os.path.exists(self.g2p_dict_path):
-            f = open(self.g2p_dict_path, "r", encoding="utf-8")
-            list_words = f.read().strip().split("\n")
-            f.close()
+            with open(self.g2p_dict_path, "r", encoding="utf-8") as f:
+                list_words = f.read().strip().split("\n")
+
             for word_phone in list_words:
+
                 w_p = word_phone.split("\t")
                 assert len(w_p) == 2, print(w_p)
+
                 if "," not in w_p[1]:
                     self.phone_dict[w_p[0]] = [w_p[1]]
                 else:
@@ -250,10 +252,10 @@ class Text2PhonemeSequence:
             self.save_missing_phonemes()
 
     def t2p(self, text: str, language: Optional[str] = None) -> str:
-        
+
         if language is None:
             language = self.language
-        
+
         if text in self.phone_dict:
             return self.phone_dict[text][0]
         elif text in self.punctuation:
@@ -287,7 +289,7 @@ class Text2PhonemeSequence:
                 )
 
                 phoneme = self.postprocess_phonemes(text, phones[0])
-                
+
                 self.missing_phonemes.append({text: phoneme})
 
                 return phoneme
@@ -297,12 +299,20 @@ class Text2PhonemeSequence:
         sentence="",
         seperate_syllabel_token="_",
         save_missing_phonemes=False,
-        language: Optional[str] = None, # Thêm language để tùy chọn cách đọc từ viết tắt
+        language: Optional[
+            str
+        ] = None,  # Thêm language để tùy chọn cách đọc từ viết tắt
     ):
         list_words = sentence.lower().split(" ")
         list_phones = []
+
         for i in range(len(list_words)):
+
             list_words[i] = list_words[i].replace(seperate_syllabel_token, " ")
+
+            # normalize apostrophes for english words
+            list_words[i] = list_words[i].replace("’", "'")
+
             phoneme = self.t2p(list_words[i], language)
             list_phones.append(phoneme)
 
@@ -347,22 +357,23 @@ class Text2PhonemeSequence:
 
 if __name__ == "__main__":
 
-    # model = Text2PhonemeSequence(
-    #     g2p_dict_path="vie-n.unique.tsv",
-    #     device="cpu",
-    #     language="vie-n",
-    # )
-    # # model.infer_dataset(
-    # #     input_file="input.txt",
-    # #     output_file="new_output.txt",
-    # # )
-
-    # print(model.infer_sentence('lắk', save_missing_phonemes=True))
-
     model = Text2PhonemeSequence(
-        g2p_dict_path="eng-us.unique.tsv",
+        g2p_dict_path="vie-n.unique.tsv",
         device="cpu",
-        language="eng-us",
+        language="vie-n",
     )
-    
-    print(model.infer_sentence("openai", save_missing_phonemes=True))
+
+    print(model.infer_sentence('sinh ga po', save_missing_phonemes=True))
+
+    # model = Text2PhonemeSequence(
+    #     g2p_dict_path="eng-us.unique.tsv",
+    #     device="cpu",
+    #     language="eng-us",
+    # )
+
+    # print(
+    #     model.infer_sentence(
+    #         "e-learning e-book e-commerce eco-friendly",
+    #         save_missing_phonemes=True,
+    #     )
+    # )
